@@ -18,6 +18,15 @@ cd ./liberty-archetype-webapp-example/
 mvn -N io.takari:maven:wrapper -Dmaven=3.6.0
 ```
 
+## maven plugin
+
+```bash
+# build (install, not just package) and run
+./mvnw clean install liberty:start-server
+# test
+http :9080/liberty-archetype-webapp-example/servlet
+```
+
 ## fat jar
 
 ```bash
@@ -25,15 +34,6 @@ mvn -N io.takari:maven:wrapper -Dmaven=3.6.0
 ./mvnw clean package
 # run
 java -jar target/*.jar
-# test
-http :9080/liberty-archetype-webapp-example/servlet
-```
-
-## maven plugin
-
-```bash
-# build (install, not just package) and run
-./mvnw clean install liberty:start-server
 # test
 http :9080/liberty-archetype-webapp-example/servlet
 ```
