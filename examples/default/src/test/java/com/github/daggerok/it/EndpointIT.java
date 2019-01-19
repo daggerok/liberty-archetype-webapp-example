@@ -18,8 +18,6 @@ package com.github.daggerok.it;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -28,30 +26,28 @@ import static org.junit.Assert.assertTrue;
 
 public class EndpointIT {
   private static String URL;
-  private HttpClient client;
-  private GetMethod method;
 
   @BeforeClass
   public static void init() {
-    URL = "http://127.0.0.1:9080/liberty-archetype-webapp-example/servlet";
-  }
-
-  @Before
-  public void before() {
-    client = new HttpClient();
-    method = new GetMethod(URL);
+    URL = "http://localhost:9080/liberty-archetype-webapp-example/servlet";
   }
 
   @Test
   public void testServlet() throws Exception {
-      int statusCode = client.executeMethod(method);
-      assertEquals("HTTP GET failed", HttpStatus.SC_OK, statusCode);
-      String response = method.getResponseBodyAsString(1000);
-      assertTrue("Unexpected response body", response.contains("Hello! How are you today?"));
-  }
+    HttpClient client = new HttpClient();
 
-  @After
-  public void after() {
-    method.releaseConnection();
+    GetMethod method = new GetMethod(URL);
+
+    try {
+      int statusCode = client.executeMethod(method);
+
+      assertEquals("HTTP GET failed", HttpStatus.SC_OK, statusCode);
+
+      String response = method.getResponseBodyAsString(1000);
+
+      assertTrue("Unexpected response body", response.contains("Hello! How are you today?"));
+    } finally {
+      method.releaseConnection();
+    }
   }
 }
