@@ -1,0 +1,58 @@
+notifications:
+  email: false
+
+git:
+  depth: false
+  quiet: true
+
+service:
+  - docker
+
+language: java
+jdk: oraclejdk8
+
+addons:
+  apt:
+    packages:
+      - sudo
+      - lsof
+      - wget
+      - bash
+      - curl
+      - jq
+      - libxml2-utils
+      - unzip
+      - python-pip
+
+install: true
+before_install:
+  - sudo pip install httpie >/dev/null 2>&1
+  - source <(curl -s https://raw.githubusercontent.com/daggerok/bash-functions/master/main.bash)
+  - stop_any 80 8080
+
+script:
+  - ./mvnw
+  #
+  - java -jar target/*.jar &
+  - wait_for 9080
+  - sleep 15
+  - http :9080/liberty-archetype-webapp-example/
+  - http :9080/liberty-archetype-webapp-example/servlet
+  - stop_any 80 9080
+  #
+  - ./mvnw -Prestart &
+  - wait_for 9080
+  - sleep 15
+  - http :9080/liberty-archetype-webapp-example/
+  - http :9080/liberty-archetype-webapp-example/servlet
+  - stop_any 80 9080
+  #
+  - docker build -t app .
+  - docker run --rm -d -p 80:9080 -p 443:9443 --name run-app app
+  - docker logs -f -t run-app &
+  - wait_for 80 443
+  - sleep 15
+  - http :/liberty-archetype-webapp-example/
+  - http :/liberty-archetype-webapp-example/servlet
+  - docker rm -f -v run-app
+  - stop_any 80 9080
